@@ -17,12 +17,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class RandomWords extends StatefulWidget {
+class MenuList extends StatefulWidget {
   @override
-  _RandomWordsState createState() => _RandomWordsState();
+  _MenuListState createState() => _MenuListState();
 }
 
-class _RandomWordsState extends State<RandomWords> {
+class _MenuListState extends State<MenuList> {
   final _suggestions = <WordPair>[];
   final _biggerFont = const TextStyle(fontSize: 18);
 
@@ -91,18 +91,65 @@ class _MainPageState extends State<MainPage> {
           appBar: AppBar(
             bottom: TabBar(
               tabs: [
-                Tab(icon: Icon(Icons.fastfood)),
                 Tab(icon: Icon(Icons.radio)),
+                Tab(icon: Icon(Icons.fastfood)),
               ],
             ),
             title: Text("Menu Teller Demo")
           ),
           body: TabBarView(children: [
-            Icon(Icons.fastfood),
-            RandomWords(),
+            TextExample(),
+            MenuList(),
           ]),
         ),
       ),
     );
+  }
+}
+
+class TextExample extends StatefulWidget {
+  @override
+  _TextExampleState createState() => _TextExampleState();
+}
+
+class _TextExampleState extends State<TextExample> {
+  String _buttonState='OFF';
+  var _color=Colors.red;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 200,
+              child: RaisedButton(
+                child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                onPressed: changeText,
+                color: _color,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  void changeText(){
+    setState(() {
+      if(_buttonState=='OFF'){
+        _buttonState='ON';
+        _color=Colors.blue;
+      }
+
+      else{
+        _buttonState='OFF';
+        _color=Colors.red;
+      }
+    });
   }
 }
