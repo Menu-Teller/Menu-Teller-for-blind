@@ -20,5 +20,5 @@ from crawl import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('crawl/', views.crawl),
+    path('menuTTS/', views.menu_tts),
 ]
