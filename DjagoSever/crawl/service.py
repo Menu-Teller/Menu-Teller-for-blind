@@ -1,18 +1,18 @@
 from urllib.parse import urlparse
 
-from django.contrib.sites import requests
-from selenium.webdriver.chrome import webdriver
+import requests
+from selenium import webdriver
 
 from crawl.models import Menu
 
 
 def crawl(shop_type, x, y, radius):
-    shop_types = ["FD6", "CE7"] # 0 - food, 1 - cafe
+    shop_types = ["FD6", "CE7"]  # 0 - food, 1 - cafe
 
-    url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=" + shop_types[shop_type] \
-          + "&radius=" + str(radius) + "&y=" + y + "&x=" + x  # 37.550950&x=126.941017"
+    url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=" + shop_types[int(shop_type)] \
+          + "&radius=" + radius + "&y=" + y + "&x=" + x  # 37.550950&x=126.941017"
     result = requests.get(urlparse(url).geturl(),
-                          headers={"Authorization": "KakaoAK 00000"})  # 본인 api 키 입력
+                          headers={"Authorization": "KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f"})  # 본인 api 키 입력
     driver = webdriver.Chrome(executable_path=r'C:\Users\may05\PycharmProjects\chromedriver.exe')  # 본인 크롬 드라이버 위치 입력
     driver.implicitly_wait(3)
 
@@ -62,12 +62,12 @@ def menu_tts(data):
 def tts(text):
     # 만든 합성기 구동. 우선은 kakao tts로
     headers = {
-            # Transfer-Encoding: chunked # 보내는 양을 모를 때 헤더에 포함
-            'Host': 'kakaoi-newtone-openapi.kakao.com',
-            'Content-Type': 'application/xml',
-            'X-DSS-Service': 'DICTATION',
-            'Authorization': f'KakaoAK 00000000000',
-        }
+        # Transfer-Encoding: chunked # 보내는 양을 모를 때 헤더에 포함
+        'Host': 'kakaoi-newtone-openapi.kakao.com',
+        'Content-Type': 'application/xml',
+        'X-DSS-Service': 'DICTATION',
+        'Authorization': f'KakaoAK 00000000000',
+    }
 
     data = "<speak>" + text + "</speak>"
     data = data.encode('utf-8')

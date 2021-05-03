@@ -3,8 +3,6 @@ from urllib.parse import urlparse
 from django.core import serializers
 from django.core.serializers import json
 from django.http import HttpResponse, response, JsonResponse
-
-
 from crawl import service
 
 
