@@ -12,7 +12,7 @@ def menu_tts(request):
     y = request.GET.get('y')
     radius = request.GET.get('radius')
 
-    menu_text = service.crawl(shop_type, x, y, radius)
+    menu_text = service.mapApi(shop_type, x, y, radius)
     data = service.menu_tts(menu_text)
     # data 바탕으로 db 탐색
 

@@ -1,35 +1,69 @@
+import wave
 from urllib.parse import urlparse
 
 import requests
+from bs4 import BeautifulSoup
+from django.utils import timezone
 from selenium import webdriver
 
 from crawl.models import Menu
 
 
-def crawl(shop_type, x, y, radius):
+def mapApi(shop_type, x, y, radius):
     shop_types = ["FD6", "CE7"]  # 0 - food, 1 - cafe
 
     url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=" + shop_types[int(shop_type)] \
           + "&radius=" + radius + "&y=" + y + "&x=" + x  # 37.550950&x=126.941017"
     result = requests.get(urlparse(url).geturl(),
-                          headers={"Authorization": "KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f"})  # 본인 api 키 입력
-    driver = webdriver.Chrome(executable_path=r'C:\Users\may05\PycharmProjects\chromedriver.exe')  # 본인 크롬 드라이버 위치 입력
-    driver.implicitly_wait(3)
+                          headers={"Authorization": "KakaoAK 00000000000000"})  # 본인 api 키 입력
 
     json_obj = result.json()
     market_list = json_obj.get("documents")
-    data = {}
-    idx = 1
+
+    data = crawlMenu(market_list)  # crawl menu and make text
+
+    return data
+
+
+def crawlMenu(market_list):
+    options = webdriver.ChromeOptions()
+    # 창 숨기는 옵션 추가
+    options.add_argument("headless")
+    driver = webdriver.Chrome(executable_path=r'C:\Users\may05\PycharmProjects\chromedriver.exe',
+                              options=options)  # 본인 크롬 드라이버 위치 입력
+    data = []
+    market_idx = 1
 
     for market in market_list:
+        text = {}
+        menu_idx = 1
+        idx = 1
+
+        text["title"] = market.get("place_name")
         driver.get(market.get("place_url"))
+        driver.implicitly_wait(3)
+
         try:
-            menu_list = driver.find_element_by_class_name("list_menu").find_elements_by_class_name("loss_word")
+            menu_list = driver.find_element_by_class_name("list_menu")
+            menu_list = menu_list.find_elements_by_class_name("loss_word")
+
             for i in menu_list:
-                data["menu" + str(idx)] = i.text
-        # 에러 처리 안되어있어서 조금만 class name 바뀌면 에러남. 나중에 시간나면 고칠 예정
+                text["menu" + str(idx)] = i.text
+                menu_idx += 1
+                idx += 1
+
+                if menu_idx > 3:
+                    break  # 일단 메뉴 3개만
+
+            data.append(text)
+
+            market_idx += 1
+
+            if market_idx > 5:
+                break  # 일단 음식점 5개만
+
         except:
-            break
+            continue
 
     return data
 
@@ -45,18 +79,40 @@ def isExistMenu(text):
 
 
 def addMenu(text, path):
-    instance = Menu.objects.create(titel=text, file_url=path)
+    instance = Menu.objects.create(titel=text, created_at=timezone.now(), file_url=path)
     instance.save()
 
     return
 
 
-def menu_tts(data):
+def getMenu(text):
+    return Menu.objects.get(title=text)
+
+
+def menu_tts(menu_data):
     # isExistMenu로 먼저 탐색, 없으면 addMenu + tts 구동
     # 있으면 해당 db 내용 반환
+    voice_data = []
 
-    # todo: 받은 data list 적절히 파싱해서 함수들 돌리기
-    return data
+    for shop in menu_data:
+        data = {"title": tts(shop.get("title") + "가게에 ")}
+
+        for i in range(1, 4):
+            menu_text = shop.get("menu" + str(i))
+
+            if isExistMenu(menu_text):
+                data["menu" + i] = getMenu(menu_text)
+            else:
+                path = tts(menu_text)
+                # todo: 지금은 path로 반환하는데, 음성파일로 반환하도록 변경하기
+                data["menu" + i] = path
+                addMenu(menu_text, path)
+
+        data["end"] = tts("메뉴가 있습니다.")
+
+        voice_data.append(data)
+
+    return voice_data
 
 
 def tts(text):
@@ -66,7 +122,7 @@ def tts(text):
         'Host': 'kakaoi-newtone-openapi.kakao.com',
         'Content-Type': 'application/xml',
         'X-DSS-Service': 'DICTATION',
-        'Authorization': f'KakaoAK 00000000000',
+        'Authorization': f'KakaoAK 0000000000000',
     }
 
     data = "<speak>" + text + "</speak>"
@@ -76,7 +132,10 @@ def tts(text):
     voice = response.content
     path = "/static/wav/"
 
-    with open(path + text + ".mp3", "wb+") as mp3:
-        mp3.write(voice)
+   # wavefile = wave.open(path + text + ".wav", "wb")
+   # wavefile.write(voice) # todo: 저장 문제
 
-    return path + text + ".mp3"
+    #with open(path + text + ".mp3", "wb+") as mp3:
+    #    mp3.write(voice)
+
+    return path + text + ".wav"
