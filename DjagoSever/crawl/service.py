@@ -1,8 +1,8 @@
+import tempfile
 import wave
 from urllib.parse import urlparse
 
 import requests
-from bs4 import BeautifulSoup
 from django.utils import timezone
 from selenium import webdriver
 
@@ -15,7 +15,7 @@ def mapApi(shop_type, x, y, radius):
     url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=" + shop_types[int(shop_type)] \
           + "&radius=" + radius + "&y=" + y + "&x=" + x  # 37.550950&x=126.941017"
     result = requests.get(urlparse(url).geturl(),
-                          headers={"Authorization": "KakaoAK 00000000000000"})  # 본인 api 키 입력
+                          headers={"Authorization": "KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f"})  # 본인 api 키 입력
 
     json_obj = result.json()
     market_list = json_obj.get("documents")
@@ -69,17 +69,16 @@ def crawlMenu(market_list):
 
 
 def isExistMenu(text):
-    menu_list = Menu.objects.all()
-    menu_obj = menu_list.filter(title=text)
+    menu_obj = Menu.objects.filter(title=text)
 
-    if menu_obj is None:
-        return False
+    if menu_obj.exists():
+        return True
 
-    return True
+    return False
 
 
-def addMenu(text, path):
-    instance = Menu.objects.create(titel=text, created_at=timezone.now(), file_url=path)
+def addMenu(text, voice, path):
+    instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path, voice=voice)
     instance.save()
 
     return
@@ -101,12 +100,11 @@ def menu_tts(menu_data):
             menu_text = shop.get("menu" + str(i))
 
             if isExistMenu(menu_text):
-                data["menu" + i] = getMenu(menu_text)
+                data["menu" + str(i)] = getMenu(menu_text)
             else:
-                path = tts(menu_text)
-                # todo: 지금은 path로 반환하는데, 음성파일로 반환하도록 변경하기
-                data["menu" + i] = path
-                addMenu(menu_text, path)
+                voice, path = tts(menu_text)
+                data["menu" + str(i)] = voice
+                addMenu(menu_text, voice, path)
 
         data["end"] = tts("메뉴가 있습니다.")
 
@@ -122,7 +120,7 @@ def tts(text):
         'Host': 'kakaoi-newtone-openapi.kakao.com',
         'Content-Type': 'application/xml',
         'X-DSS-Service': 'DICTATION',
-        'Authorization': f'KakaoAK 0000000000000',
+        'Authorization': f'KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f',
     }
 
     data = "<speak>" + text + "</speak>"
@@ -132,10 +130,7 @@ def tts(text):
     voice = response.content
     path = "/static/wav/"
 
-   # wavefile = wave.open(path + text + ".wav", "wb")
-   # wavefile.write(voice) # todo: 저장 문제
+    print(voice)
 
-    #with open(path + text + ".mp3", "wb+") as mp3:
-    #    mp3.write(voice)
-
-    return path + text + ".wav"
+    return voice, path + text + ".wav"
+    # todo: voice가 chunk로 나눠져서 데이터베이스에 넣을 시 에러 발생중..

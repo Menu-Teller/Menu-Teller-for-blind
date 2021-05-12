@@ -10,7 +10,7 @@ def menu_tts(request):
     shop_type = request.GET.get('shop_type')
     x = request.GET.get('x')
     y = request.GET.get('y')
-    radius = request.GET.get('radius')
+    radius = request.GET.get('radius')  # todo: post로 변경
 
     menu_text = service.mapApi(shop_type, x, y, radius)
     data = service.menu_tts(menu_text)
