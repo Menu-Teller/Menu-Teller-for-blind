@@ -6,7 +6,7 @@ import requests
 from django.utils import timezone
 from selenium import webdriver
 
-from crawl.models import Menu
+from crawlTTS.models import Menu
 
 
 def mapApi(shop_type, x, y, radius):
@@ -20,7 +20,7 @@ def mapApi(shop_type, x, y, radius):
     json_obj = result.json()
     market_list = json_obj.get("documents")
 
-    data = crawlMenu(market_list)  # crawl menu and make text
+    data = crawlMenu(market_list)  # crawlTTS menu and make text
 
     return data
 
@@ -77,8 +77,8 @@ def isExistMenu(text):
     return False
 
 
-def addMenu(text, voice, path):
-    instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path, voice=voice)
+def addMenu(text, path):
+    instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path)
     instance.save()
 
     return
@@ -100,11 +100,11 @@ def menu_tts(menu_data):
             menu_text = shop.get("menu" + str(i))
 
             if isExistMenu(menu_text):
-                data["menu" + str(i)] = getMenu(menu_text)
+                data["menu" + str(i)] = getMenu(menu_text).file_url
             else:
-                voice, path = tts(menu_text)
-                data["menu" + str(i)] = voice
-                addMenu(menu_text, voice, path)
+                path = tts(menu_text)
+                data["menu" + str(i)] = path
+                addMenu(menu_text, path)
 
         data["end"] = tts("메뉴가 있습니다.")
 
@@ -128,9 +128,9 @@ def tts(text):
     response = requests.post('https://kakaoi-newtone-openapi.kakao.com/v1/synthesize', headers=headers, data=data)
 
     voice = response.content
-    path = "/static/wav/"
+    path = "static/wav/"
 
-    print(voice)
+    with open(path + text + ".wav", "wb+") as wav:
+        wav.write(response.content)
 
-    return voice, path + text + ".wav"
-    # todo: voice가 chunk로 나눠져서 데이터베이스에 넣을 시 에러 발생중..
+    return path + text + ".wav"  # 파일째로 저장하지 않고 경로로 넘겨주기

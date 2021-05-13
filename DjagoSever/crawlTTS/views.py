@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from django.core import serializers
 from django.core.serializers import json
 from django.http import HttpResponse, response, JsonResponse
-from crawl import service
+from crawlTTS import service
 
 
 def menu_tts(request):
@@ -16,4 +16,4 @@ def menu_tts(request):
     data = service.menu_tts(menu_text)
     # data 바탕으로 db 탐색
 
-    return HttpResponse(data)
+    return JsonResponse(data, safe=False)
