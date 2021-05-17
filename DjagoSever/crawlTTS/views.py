@@ -1,16 +1,20 @@
 from urllib.parse import urlparse
 
 from django.core import serializers
-from django.core.serializers import json
+import json
 from django.http import HttpResponse, response, JsonResponse
 from crawlTTS import service
 
 
 def menu_tts(request):
-    shop_type = request.GET.get('shop_type')
-    x = request.GET.get('x')
-    y = request.GET.get('y')
-    radius = request.GET.get('radius')  # todo: post로 변경
+
+    if request.method == 'POST':
+        body = json.loads(request.body)
+
+        shop_type = body['shop_type']
+        x = body['x']
+        y = body['y']
+        radius = body['radius']
 
     menu_text = service.mapApi(shop_type, x, y, radius)
     data = service.menu_tts(menu_text)
