@@ -13,7 +13,7 @@ request: POST 메소드로 아래와 같이 json 전달
   "radius": "00" -- 주변 범위
 } 
 ```
-- [ ] **현재는 GET 메소드로 parameter로 받는중. 변경 필요.** 
+- [X] **현재는 GET 메소드로 parameter로 받는중. 변경 필요. -> 변경 완료!**
 
 
 
