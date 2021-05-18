@@ -1,6 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';  // Add this line.
 import 'package:geolocator/geolocator.dart';
+import 'package:dio/dio.dart';
+
+const _API_PREFIX = "http://10.0.2.2:8000/menuTTS/";
+class Server {
+  Future<void> getReq() async {
+    Response response;
+    Dio dio = new Dio();
+    response = await dio.get("$_API_PREFIX");
+    print(response.data.toString());
+  }
+
+  Future<void> postReq(Map<String, dynamic> data) async {
+    Response response;
+    Dio dio = new Dio();
+    response = await dio.post("$_API_PREFIX", data: data);
+    print(response.data.toString());
+  }
+}
+
+Server server = Server();
 
 void main() {
   runApp(MyApp());
@@ -115,6 +135,28 @@ class TextExample extends StatefulWidget {
 class _TextExampleState extends State<TextExample> {
   String _buttonState='OFF';
   var _color=Colors.red;
+  Map<String, dynamic> data;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentLocation();
+  }
+
+  Future<void> getCurrentLocation() async {
+    LocationPermission permission = await Geolocator.requestPermission();
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position.latitude);
+    print(position.longitude);
+    data = {
+      "shop_type":"0",
+      "x": position.latitude.toString(),
+      "y": position.longitude.toString(),
+      "radius": "100"
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -127,7 +169,11 @@ class _TextExampleState extends State<TextExample> {
               height: 200,
               child: RaisedButton(
                 child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
-                onPressed: changeText,
+                onPressed: (){
+                  server.postReq(data);
+                  //server.getReq();
+                  changeText();
+                  },
                 color: _color,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)

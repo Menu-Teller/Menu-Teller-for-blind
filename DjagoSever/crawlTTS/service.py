@@ -29,7 +29,7 @@ def crawlMenu(market_list):
     options = webdriver.ChromeOptions()
     # 창 숨기는 옵션 추가
     options.add_argument("headless")
-    driver = webdriver.Chrome(executable_path=r'C:\Users\may05\PycharmProjects\chromedriver.exe',
+    driver = webdriver.Chrome(executable_path=r'../chromedriver.exe',
                               options=options)  # 본인 크롬 드라이버 위치 입력
     data = []
     market_idx = 1
