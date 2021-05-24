@@ -28,7 +28,10 @@ def mapApi(shop_type, x, y, radius):
 def crawlMenu(market_list):
     options = webdriver.ChromeOptions()
     # 창 숨기는 옵션 추가
-    options.add_argument("headless")
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument("--single-process")
+    options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(executable_path=r'../chromedriver.exe',
                               options=options)  # 본인 크롬 드라이버 위치 입력
     data = []

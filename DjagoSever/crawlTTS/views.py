@@ -20,4 +20,5 @@ def menu_tts(request):
     data = service.menu_tts(menu_text)
     # data 바탕으로 db 탐색
 
-    return JsonResponse({"voices": data}, safe=False)
+    return JsonResponse({"voices": data,
+                         "menus": menu_text}, safe=False)

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';  // Add this line.
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 const _API_PREFIX = "http://10.0.2.2:8000/menuTTS/";
+const _API_AUDIO_PREFIX = "http://10.0.2.2:8000/";
 class Server {
   Future<void> getReq() async {
     Response response;
@@ -12,13 +14,45 @@ class Server {
     print(response.data.toString());
   }
 
-  Future<void> postReq(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> postReq(Map<String, dynamic> data) async {
     Response response;
     Dio dio = new Dio();
     response = await dio.post("$_API_PREFIX", data: data);
-    print(response.data.toString());
+    return response.data;
   }
 }
+/*
+class Voice {
+  final List<dynamic> voice;
+  //final twoDMenu = List.generate(voice.length, (i) => List(5), growable: false);
+  Voice({this.voice});
+  List list;
+  factory Voice.fromJson(Map<String, dynamic> json) {
+    return Voice(
+      voice: json['voices'] as List,
+    );
+  }
+}
+*/
+/*
+class Menus {
+  final twoDMenu;
+  Menus({this.twoDMenu});
+  factory Menus.fromList(List<dynamic> voice) {
+    var twoDList = List.generate(voice.length, (i) => List(5), growable: false);
+    for (int i=0;i<voice.length;i++){
+      twoDList[i][0] = voice[i]["title"];
+      twoDList[i][1] = voice[i]["menu1"];
+      twoDList[i][2] = voice[i]["menu2"];
+      twoDList[i][3] = voice[i]["menu3"];
+      twoDList[i][4] = voice[i]["end"];
+    }
+    return Menus(
+      twoDMenu: twoDList,
+    );
+  }
+}
+*/
 
 Server server = Server();
 
@@ -118,7 +152,7 @@ class _MainPageState extends State<MainPage> {
             title: Text("Menu Teller Demo")
           ),
           body: TabBarView(children: [
-            TextExample(),
+            SpeechMenuButton(),
             MenuList(),
           ]),
         ),
@@ -127,20 +161,24 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class TextExample extends StatefulWidget {
+class SpeechMenuButton extends StatefulWidget {
   @override
-  _TextExampleState createState() => _TextExampleState();
+  _SpeechMenuButton createState() => _SpeechMenuButton();
 }
 
-class _TextExampleState extends State<TextExample> {
+class _SpeechMenuButton extends State<SpeechMenuButton> {
   String _buttonState='OFF';
   var _color=Colors.red;
   Map<String, dynamic> data;
+  AudioPlayer audioPlayer = AudioPlayer();
+  List<dynamic> pathlist1 = List.filled(0,0,growable:true);
+  List<dynamic> pathlist2 = List.filled(0,0,growable:true);
+  Map<String, dynamic> json;
 
   @override
   void initState() {
     super.initState();
-    getCurrentLocation();
+    AudioPlayer.logEnabled = false;
   }
 
   Future<void> getCurrentLocation() async {
@@ -165,12 +203,29 @@ class _TextExampleState extends State<TextExample> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-              width: 200,
-              height: 200,
+              width: 300,
+              height: 300,
+              child: FlatButton(
+                child: Text("Update Location", style: TextStyle(fontSize: 22, color: Colors.white)),
+                onPressed: (){
+                  getCurrentLocation();
+                  Future.delayed(Duration(milliseconds: 5000), (){
+                    getReq();
+                  });
+                },
+                color: Colors.black,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: 300,
+              height: 300,
               child: RaisedButton(
                 child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
                 onPressed: (){
-                  server.postReq(data);
                   //server.getReq();
                   changeText();
                   },
@@ -193,9 +248,51 @@ class _TextExampleState extends State<TextExample> {
       }
 
       else{
+        getAudio();
         _buttonState='OFF';
         _color=Colors.red;
       }
     });
+  }
+
+  void getReq() async{
+    json = await server.postReq(data);
+    print(json["voices"]);
+    print(json["menus"]);
+  }
+
+  void getAudio() async{
+    var url = _API_AUDIO_PREFIX;
+
+    for(int i=0;i<json["voices"].length;i++){
+      getDelay("title", i, 1);
+      getDelay("menu1", i, 2);
+      getDelay("menu2", i, 3);
+      getDelay("menu3", i, 4);
+      getDelay("end", i, 5);
+      pathlist2.add(pathlist1);
+      pathlist1 = List.filled(0,0,growable:true);
+    }
+  }
+
+  void getDelay(var name, int i, int name_i) async{
+    var path = _API_AUDIO_PREFIX + json["voices"][i][name];
+    pathlist1.add(path);
+    int duration = (i+1) * name_i * 5000;
+    Future.delayed(Duration(milliseconds: duration), (){
+      print(path);
+      playAudio(pathlist2[i][name_i]);
+      print(pathlist2[i][name_i]);
+    });
+  }
+
+  Future<void> playAudio(var url) async {
+    int result = await audioPlayer.play(url);
+    if (result == 1){
+      print("success");
+    } else {
+      print("fail");
+    }
+    //duration = await audioPlayer.getDuration();
   }
 }

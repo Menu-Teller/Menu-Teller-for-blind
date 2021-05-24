@@ -2,6 +2,7 @@
     package="com.example.menu_teller">
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
    <application
         android:label="menu_teller"
         android:icon="@mipmap/ic_launcher"
