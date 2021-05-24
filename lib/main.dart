@@ -21,41 +21,9 @@ class Server {
     return response.data;
   }
 }
-/*
-class Voice {
-  final List<dynamic> voice;
-  //final twoDMenu = List.generate(voice.length, (i) => List(5), growable: false);
-  Voice({this.voice});
-  List list;
-  factory Voice.fromJson(Map<String, dynamic> json) {
-    return Voice(
-      voice: json['voices'] as List,
-    );
-  }
-}
-*/
-/*
-class Menus {
-  final twoDMenu;
-  Menus({this.twoDMenu});
-  factory Menus.fromList(List<dynamic> voice) {
-    var twoDList = List.generate(voice.length, (i) => List(5), growable: false);
-    for (int i=0;i<voice.length;i++){
-      twoDList[i][0] = voice[i]["title"];
-      twoDList[i][1] = voice[i]["menu1"];
-      twoDList[i][2] = voice[i]["menu2"];
-      twoDList[i][3] = voice[i]["menu3"];
-      twoDList[i][4] = voice[i]["end"];
-    }
-    return Menus(
-      twoDMenu: twoDList,
-    );
-  }
-}
-*/
 
 Server server = Server();
-
+Map<String, dynamic> json;
 void main() {
   runApp(MyApp());
 }
@@ -67,65 +35,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Menu Teller for the Blind",
       home : MainPage(),
-    );
-  }
-}
-
-class MenuList extends StatefulWidget {
-  @override
-  _MenuListState createState() => _MenuListState();
-}
-
-class _MenuListState extends State<MenuList> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = const TextStyle(fontSize: 18);
-
-  @override
-  void initState() {
-    super.initState();
-    getCurrentLocation();
-  }
-
-  Future<void> getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    print(position.latitude);
-    print(position.longitude);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    //final wordPair = WordPair.random();
-    //return Text(wordPair.asPascalCase);
-    return Scaffold (
-      appBar: AppBar(
-        title: Text('주변 식당 List'),
-      ),
-      body: _buildSuggestions(),
-    );
-  }
-  Widget _buildSuggestions() {
-    return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemBuilder: (BuildContext _context, int i) {
-          if (i.isOdd) {
-            return Divider();
-          }
-          final int index = i ~/ 2;
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10));
-          }
-          return _buildRow(_suggestions[index]);
-        }
-    );
-  }
-  Widget _buildRow(WordPair pair) {
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
     );
   }
 }
@@ -143,13 +52,13 @@ class _MainPageState extends State<MainPage> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            bottom: TabBar(
-              tabs: [
-                Tab(icon: Icon(Icons.radio)),
-                Tab(icon: Icon(Icons.fastfood)),
-              ],
-            ),
-            title: Text("Menu Teller Demo")
+              bottom: TabBar(
+                tabs: [
+                  Tab(icon: Icon(Icons.radio)),
+                  Tab(icon: Icon(Icons.fastfood)),
+                ],
+              ),
+              title: Text("Menu Teller Demo")
           ),
           body: TabBarView(children: [
             SpeechMenuButton(),
@@ -160,6 +69,86 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
+
+class MenuList extends StatefulWidget {
+  @override
+  _MenuListState createState() => _MenuListState();
+}
+
+class _MenuListState extends State<MenuList> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //final wordPair = WordPair.random();
+    //return Text(wordPair.asPascalCase);
+    return Scaffold (
+      appBar: AppBar(
+        title: Text('주변 식당 List'),
+      ),
+      body: _buildSuggestions(),
+    );
+  }
+  Widget _buildSuggestions() {
+    return ListView.separated(
+        padding: EdgeInsets.all(5),
+        itemCount : json["menus"].length,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+            height:50,
+            color: Colors.amber[100],
+            child: RaisedButton(
+              child: Text('${json["menus"][index]["title"]}'),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MenuDetail(index: index)),
+                );
+              },
+            ),
+          );
+        },
+        separatorBuilder: (BuildContext context, int index) => const Divider(),
+    );
+  }
+}
+
+class MenuDetail extends StatelessWidget {
+  final int index;
+  MenuDetail({Key key, @required this.index}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Menu List'),
+      ),
+      body: _buildSuggestions(),
+    );
+  }
+  Widget _buildSuggestions() {
+    return ListView.separated(
+      padding: EdgeInsets.all(3),
+      itemCount : json["menus"].length - 2,
+      itemBuilder: (BuildContext context, int i) {
+        return Container(
+          height:50,
+          color: Colors.amber[100],
+          child: Center(
+            child: Text('${json["menus"][index]["menu${i+1}"]}'),
+          ),
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) => const Divider(),
+    );
+  }
+}
+
+
+
 
 class SpeechMenuButton extends StatefulWidget {
   @override
@@ -173,12 +162,15 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
   AudioPlayer audioPlayer = AudioPlayer();
   List<dynamic> pathlist1 = List.filled(0,0,growable:true);
   List<dynamic> pathlist2 = List.filled(0,0,growable:true);
-  Map<String, dynamic> json;
 
   @override
   void initState() {
     super.initState();
     AudioPlayer.logEnabled = false;
+    getCurrentLocation();
+    Future.delayed(Duration(milliseconds: 5000), (){
+      getReq();
+    });
   }
 
   Future<void> getCurrentLocation() async {
@@ -205,7 +197,7 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
             Container(
               width: 300,
               height: 300,
-              child: FlatButton(
+              child: RaisedButton(
                 child: Text("Update Location", style: TextStyle(fontSize: 22, color: Colors.white)),
                 onPressed: (){
                   getCurrentLocation();
