@@ -6,7 +6,15 @@ import requests
 from django.utils import timezone
 from selenium import webdriver
 
-from crawlTTS.models import Menu
+from crawlTTS.models import Menu, Scripts
+
+"""import soundfile
+import time
+import torch
+from espnet_model_zoo.downloader import ModelDownloader
+from espnet2.bin.tts_inference import Text2Speech
+from parallel_wavegan.utils import download_pretrained_model
+from parallel_wavegan.utils import load_model """
 
 
 def mapApi(shop_type, x, y, radius):
@@ -32,7 +40,7 @@ def crawlMenu(market_list):
     options.add_argument('--no-sandbox')
     options.add_argument("--single-process")
     options.add_argument("--disable-dev-shm-usage")
-    driver = webdriver.Chrome(executable_path=r'../chromedriver.exe',
+    driver = webdriver.Chrome(executable_path=r'static/driver/chromedriver.exe',
                               options=options)  # 본인 크롬 드라이버 위치 입력
     data = []
     market_idx = 1
@@ -42,7 +50,6 @@ def crawlMenu(market_list):
         menu_idx = 1
         idx = 1
 
-        text["title"] = market.get("place_name")
         driver.get(market.get("place_url"))
         driver.implicitly_wait(3)
 
@@ -50,6 +57,7 @@ def crawlMenu(market_list):
             menu_list = driver.find_element_by_class_name("list_menu")
             menu_list = menu_list.find_elements_by_class_name("loss_word")
 
+            text["title"] = market.get("place_name")
             for i in menu_list:
                 text["menu" + str(idx)] = i.text
                 menu_idx += 1
@@ -84,11 +92,18 @@ def addMenu(text, path):
     instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path)
     instance.save()
 
-    return
-
 
 def getMenu(text):
     return Menu.objects.get(title=text)
+
+
+def getEndVoice():
+    return Scripts.objects.get(text="end")
+
+
+def addEndVoice(path):
+    instance = Scripts.objects.create(text="end", file_url=path)
+    instance.save()
 
 
 def menu_tts(menu_data):
@@ -97,7 +112,7 @@ def menu_tts(menu_data):
     voice_data = []
 
     for shop in menu_data:
-        data = {"title": tts(shop.get("title") + "가게에 ")}
+        data = {"title": kakao_tts(shop.get("title"))}
 
         for i in range(1, 4):
             menu_text = shop.get("menu" + str(i))
@@ -105,18 +120,23 @@ def menu_tts(menu_data):
             if isExistMenu(menu_text):
                 data["menu" + str(i)] = getMenu(menu_text).file_url
             else:
-                path = tts(menu_text)
+                path = kakao_tts(menu_text)
                 data["menu" + str(i)] = path
                 addMenu(menu_text, path)
 
-        data["end"] = tts("메뉴가 있습니다.")
+        if Scripts.objects.filter(text="end").exists():
+            data["end"] = getEndVoice().file_url
+        else:
+            path = kakao_tts("메뉴가 있습니다.")
+            data["end"] = path
+            addEndVoice(path)
 
         voice_data.append(data)
 
     return voice_data
 
 
-def tts(text):
+def kakao_tts(text):
     # 만든 합성기 구동. 우선은 kakao tts로
     headers = {
         # Transfer-Encoding: chunked # 보내는 양을 모를 때 헤더에 포함
@@ -137,3 +157,30 @@ def tts(text):
         wav.write(response.content)
 
     return path + text + ".wav"  # 파일째로 저장하지 않고 경로로 넘겨주기
+
+# espnet tts
+"""def espnet_tts(text):
+    d = ModelDownloader()
+    text2speech = Text2Speech(
+        **d.download_and_unpack("/content/tts_tacotron-old.zip"),
+        device="cuda",
+        # Only for Tacotron 2
+        threshold=0.5,
+        minlenratio=0.0,
+        maxlenratio=10.0,
+        use_att_constraint=False,
+        backward_window=1,
+        forward_window=3,
+        # Only for FastSpeech & FastSpeech2
+        speed_control_alpha=1.0, )
+
+    with torch.no_grad():
+        start = time.time()
+        sound, c, *_ = text2speech(text)
+
+    path = "static/wav/"
+
+    with open(path + text + ".wav", "wb+") as wav:
+        wav.write(sound)
+
+    return path + text + ".wav" """
