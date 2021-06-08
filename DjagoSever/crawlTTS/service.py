@@ -1,12 +1,9 @@
-import tempfile
-import wave
 from urllib.parse import urlparse
 
 import requests
-from django.utils import timezone
 from selenium import webdriver
-
-from crawlTTS.models import Menu, Scripts
+import crawlTTS.dao as dao
+from mutagen.mp3 import MP3
 
 """import soundfile
 import time
@@ -68,7 +65,6 @@ def crawlMenu(market_list):
                     break  # 일단 메뉴 3개만
 
             data.append(text)
-
             market_idx += 1
 
             if market_idx > 5:
@@ -80,64 +76,45 @@ def crawlMenu(market_list):
     return data
 
 
-def isExistMenu(text):
-    menu_obj = Menu.objects.filter(title=text)
-
-    if menu_obj.exists():
-        return True
-
-    return False
-
-
-def addMenu(text, path):
-    instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path)
-    instance.save()
-
-
-def getMenu(text):
-    return Menu.objects.get(title=text)
-
-
-def getEndVoice():
-    return Scripts.objects.get(text="end")
-
-
-def addEndVoice(path):
-    instance = Scripts.objects.create(text="end", file_url=path)
-    instance.save()
-
-
 def menu_tts(menu_data):
     # isExistMenu로 먼저 탐색, 없으면 addMenu + tts 구동
     # 있으면 해당 db 내용 반환
     voice_data = []
 
     for shop in menu_data:
-        data = {"title": kakao_tts(shop.get("title")+"가게에 ")}
+        # save shop data
+        shop_title = shop.get("title") + "가게에 "
+        shop_path, shop_duration = kakao_tts(shop_title, "static/wav/shop/")
+        dao.addShop(shop_title, shop_path, shop_duration)
+        data = {"title": {"audio_path": shop_path, "duration": shop_duration}}
 
+        # make menu voices
         for i in range(1, 4):
             menu_text = shop.get("menu" + str(i))
 
-            if isExistMenu(menu_text):
-                data["menu" + str(i)] = getMenu(menu_text).file_url
+            if dao.isExistMenu(menu_text):
+                menu_obj = dao.getMenu(menu_text)
+                data["menu" + str(i)] = {"audio_path": menu_obj.file_url,
+                                         "duration": menu_obj.duration}
             else:
-                path = kakao_tts(menu_text)
-                data["menu" + str(i)] = path
-                addMenu(menu_text, path)
-
-        if Scripts.objects.filter(text="end").exists():
-            data["end"] = getEndVoice().file_url
-        else:
-            path = kakao_tts("메뉴가 있습니다.")
-            data["end"] = path
-            addEndVoice(path)
+                path, duration = kakao_tts(menu_text, "static/wav/menu/")
+                data["menu" + str(i)] = {"audio_path": path,
+                                         "duration": duration}
+                dao.addMenu(menu_text, path, duration)
 
         voice_data.append(data)
 
     return voice_data
 
 
-def kakao_tts(text):
+def get_duration(audio_path):
+    audio = MP3(audio_path)
+    duration = audio.info.length
+
+    return round(duration)
+
+
+def kakao_tts(text, path):
     # 만든 합성기 구동. 우선은 kakao tts로
     headers = {
         # Transfer-Encoding: chunked # 보내는 양을 모를 때 헤더에 포함
@@ -151,13 +128,12 @@ def kakao_tts(text):
     data = data.encode('utf-8')
     response = requests.post('https://kakaoi-newtone-openapi.kakao.com/v1/synthesize', headers=headers, data=data)
 
-    voice = response.content
-    path = "static/wav/"
+    audio_path = path + text + ".mp3"
+    with open(audio_path, "wb+") as mp3:
+        mp3.write(response.content)
+        duration = get_duration(audio_path)
 
-    with open(path + text + ".wav", "wb+") as wav:
-        wav.write(response.content)
-
-    return path + text + ".wav"  # 파일째로 저장하지 않고 경로로 넘겨주기
+    return audio_path, duration  # 파일째로 저장하지 않고 경로로 넘겨주기
 
 # espnet tts
 """def espnet_tts(text):
