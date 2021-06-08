@@ -50,6 +50,9 @@ delay 조절하기
 
 [참고할 flutter 앱의 android 배포 링크](https://here4you.tistory.com/198)
 
+**일시적 데모**
+![ezgif com-gif-maker](https://user-images.githubusercontent.com/51294226/121154899-4b538300-c882-11eb-9355-caa98e0b2532.gif)
+
 
 ### Server
 
