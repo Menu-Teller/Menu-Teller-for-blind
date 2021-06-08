@@ -78,23 +78,35 @@ request: POST 메소드로 아래와 같이 위치 정보 json 전달
 
 response: 합성한 음성 파일 경로와 음식점, 메뉴 리스트를 반환.   
 필요 시 다른 형식으로 변경될 수 있음.   
-아래와 같은 형식이며, 우선는 5개의 가게와 각 3개 메뉴를 보내줌.
+아래와 같은 형식이며, 우선는 5개의 가게와 각 3개 메뉴를 보내줌.   
+   
+**0608 수정**   
+앱에서 매끄러운 음성 연결을 위해 음성 파일 길이 실어서 response.   
+원래 wav로 저장하였으나, wav 음성 길이 측정 시 64bit wav를 못 여는 에러 발생.   
+=> mp3의 용량이 더 작지만 음성 품질은 차이가 별로 없고, 길이 측정이 용이하여 mp3로 변경   
+   
+또한, 예외음성, 마무리멘트, 로딩멘트 등은 항상 같으므로 db 없이 static 폴더에 항상 있음.   
+경로와 duration이 항상 같으니 바로 접근.   
 ```
 {
     "voices": [
         {
-            "title": "static/wav/도꼭지.wav",
-            "menu1": "static/wav/고등어구이+계절솥밥 (런치).wav",
-            "menu2": "static/wav/삼치구이+계절솥밥 (런치).wav",
-            "menu3": "static/wav/제주산갈치구이+계절솥밥 (런치).wav",
-            "end": "static/wav/메뉴가 있습니다..wav"
-        },
-        {
-            "title": "static/wav/원조기사님분식.wav",
-            "menu1": "static/wav/짜장.wav",
-            "menu2": "static/wav/우동.wav",
-            "menu3": "static/wav/오뎅백반.wav",
-            "end": "static/wav/메뉴가 있습니다..wav"
+            "title": {
+                "audio_path": "static/wav/shop/도꼭지가게에 .mp3",
+                "duration": 1
+            },
+            "menu1": {
+                "audio_path": "static/wav/menu/고등어구이+계절솥밥 (런치).mp3",
+                "duration": 2
+            },
+            "menu2": {
+                "audio_path": "static/wav/menu/삼치구이+계절솥밥 (런치).mp3",
+                "duration": 2
+            },
+            "menu3": {
+                "audio_path": "static/wav/menu/제주산갈치구이+계절솥밥 (런치).mp3",
+                "duration": 3
+            }
         }
     ],
     "menus": [
@@ -102,19 +114,22 @@ response: 합성한 음성 파일 경로와 음식점, 메뉴 리스트를 반�
             "title": "도꼭지",
             "menu1": "고등어구이+계절솥밥 (런치)",
             "menu2": "삼치구이+계절솥밥 (런치)",
-            "menu3": "제주산갈치구이+계절솥밥 (런치)",
-        },
-        {
-            "title": "원조기사님분식",
-            "menu1": "짜장",
-            "menu2": "우동",
-            "menu3": "오뎅백반",
+            "menu3": "제주산갈치구이+계절솥밥 (런치)"
         }
     ]
 }
 ```
+   
+음식점 없을 시 response
+```
+{
+    "voices": "static/wav/scripts/예외음성.wav",
+    "menus": "음식점이 없습니다."
+}
+```
+   
+**앞으로 해야 할 일**    
 
-**앞으로 해야 할 일**
 -[ ] espnet이 장고에서 동작하는지 확인
 -[ ] heroku 혹은 aws ec2를 리서치해서 배포
 -[ ] 테스트 코드 작성
