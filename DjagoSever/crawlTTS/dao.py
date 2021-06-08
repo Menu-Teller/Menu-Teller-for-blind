@@ -11,8 +11,8 @@ def isExistMenu(text):
     return False
 
 
-def addMenu(text, path):
-    instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path)
+def addMenu(text, path, duration):
+    instance = Menu.objects.create(title=text, created_at=timezone.now(), file_url=path, duration=duration)
     instance.save()
 
 
@@ -20,8 +20,8 @@ def getMenu(text):
     return Menu.objects.get(title=text)
 
 
-def addShop(text, path):
-    instance = Shop.objects.create(title=text, file_url=path)
+def addShop(text, path, duration):
+    instance = Shop.objects.create(title=text, file_url=path, duration=duration)
     instance.save()
 
 

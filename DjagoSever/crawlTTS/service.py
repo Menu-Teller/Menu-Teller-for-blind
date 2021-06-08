@@ -2,8 +2,8 @@ from urllib.parse import urlparse
 
 import requests
 from selenium import webdriver
-
 import crawlTTS.dao as dao
+from mutagen.mp3 import MP3
 
 """import soundfile
 import time
@@ -65,7 +65,6 @@ def crawlMenu(market_list):
                     break  # 일단 메뉴 3개만
 
             data.append(text)
-
             market_idx += 1
 
             if market_idx > 5:
@@ -85,24 +84,34 @@ def menu_tts(menu_data):
     for shop in menu_data:
         # save shop data
         shop_title = shop.get("title") + "가게에 "
-        shop_path = kakao_tts(shop_title, "static/wav/shop/")
-        dao.addShop(shop_title, shop_path)
-        data = {"title": shop_path}
+        shop_path, shop_duration = kakao_tts(shop_title, "static/wav/shop/")
+        dao.addShop(shop_title, shop_path, shop_duration)
+        data = {"title": {"audio_path": shop_path, "duration": shop_duration}}
 
         # make menu voices
         for i in range(1, 4):
             menu_text = shop.get("menu" + str(i))
 
             if dao.isExistMenu(menu_text):
-                data["menu" + str(i)] = dao.getMenu(menu_text).file_url
+                menu_obj = dao.getMenu(menu_text)
+                data["menu" + str(i)] = {"audio_path": menu_obj.file_url,
+                                         "duration": menu_obj.duration}
             else:
-                path = kakao_tts(menu_text, "static/wav/menu/")
-                data["menu" + str(i)] = path
-                dao.addMenu(menu_text, path)
+                path, duration = kakao_tts(menu_text, "static/wav/menu/")
+                data["menu" + str(i)] = {"audio_path": path,
+                                         "duration": duration}
+                dao.addMenu(menu_text, path, duration)
 
         voice_data.append(data)
 
     return voice_data
+
+
+def get_duration(audio_path):
+    audio = MP3(audio_path)
+    duration = audio.info.length
+
+    return round(duration)
 
 
 def kakao_tts(text, path):
@@ -119,10 +128,12 @@ def kakao_tts(text, path):
     data = data.encode('utf-8')
     response = requests.post('https://kakaoi-newtone-openapi.kakao.com/v1/synthesize', headers=headers, data=data)
 
-    with open(path + text + ".wav", "wb+") as wav:
-        wav.write(response.content)
+    audio_path = path + text + ".mp3"
+    with open(audio_path, "wb+") as mp3:
+        mp3.write(response.content)
+        duration = get_duration(audio_path)
 
-    return path + text + ".wav"  # 파일째로 저장하지 않고 경로로 넘겨주기
+    return audio_path, duration  # 파일째로 저장하지 않고 경로로 넘겨주기
 
 # espnet tts
 """def espnet_tts(text):

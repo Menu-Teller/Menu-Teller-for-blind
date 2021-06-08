@@ -1,8 +1,5 @@
-from urllib.parse import urlparse
-
-from django.core import serializers
 import json
-from django.http import HttpResponse, response, JsonResponse
+from django.http import JsonResponse
 from crawlTTS import service
 
 

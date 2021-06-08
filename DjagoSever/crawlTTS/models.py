@@ -1,5 +1,4 @@
-import tempfile
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 
 
@@ -11,6 +10,7 @@ class Menu(models.Model):
     title = models.CharField(max_length=50, default='')
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     file_url = models.URLField(max_length=200, blank=True, null=True, default='')
+    duration = models.PositiveIntegerField(default=3, validators=[MinValueValidator(1), MaxValueValidator(100)])
 
 
 class Shop(models.Model):
@@ -19,3 +19,4 @@ class Shop(models.Model):
     # 그리고 같은 음식점을 다시 만날 확률이 적을 것으로 판단되어 메뉴보다 더 자주 데이터 날리기 해야할 듯.
     title = models.TextField(max_length=200)
     file_url = models.URLField(max_length=200, blank=True, null=True, default='')
+    duration = models.PositiveIntegerField(default=3, validators=[MinValueValidator(1), MaxValueValidator(100)])
