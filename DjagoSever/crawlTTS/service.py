@@ -40,6 +40,7 @@ def crawlMenu(market_list):
     options.add_argument('--no-sandbox')
     options.add_argument("--single-process")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--remote-debugging-port=9222") # solve error "DevToolsActivePort file doesn't exist"
     driver = webdriver.Chrome(executable_path=r'static/driver/chromedriver.exe',
                               options=options)  # 본인 크롬 드라이버 위치 입력
     data = []

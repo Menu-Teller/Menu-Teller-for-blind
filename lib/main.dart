@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';  // Add this line.
 import 'package:geolocator/geolocator.dart';
 import 'package:dio/dio.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -257,11 +256,11 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
     var url = _API_AUDIO_PREFIX;
 
     for(int i=0;i<json["voices"].length;i++){
-      getDelay("title", i, 1);
-      getDelay("menu1", i, 2);
-      getDelay("menu2", i, 3);
-      getDelay("menu3", i, 4);
-      getDelay("end", i, 5);
+      getDelay("title", i, 0);
+      getDelay("menu1", i, 1);
+      getDelay("menu2", i, 2);
+      getDelay("menu3", i, 3);
+      getDelay("end", i, 4);
       pathlist2.add(pathlist1);
       pathlist1 = List.filled(0,0,growable:true);
     }
@@ -269,8 +268,11 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
 
   void getDelay(var name, int i, int name_i) async{
     var path = _API_AUDIO_PREFIX + json["voices"][i][name];
+    int delaySec = 3000;
     pathlist1.add(path);
-    int duration = (i+1) * name_i * 5000;
+    int duration = name_i * delaySec + delaySec * 5 * i;
+    print(json["voices"][i][name]);
+    print(duration);
     Future.delayed(Duration(milliseconds: duration), (){
       print(path);
       playAudio(pathlist2[i][name_i]);
