@@ -17,8 +17,13 @@ def menu_tts(request):
         radius = body['radius']
 
     menu_text = service.mapApi(shop_type, x, y, radius)
-    data = service.menu_tts(menu_text)
+    if not menu_text:
+        # 주변에 음식점 없음.
+        return JsonResponse({"voices": "/static/wav/scripts/예외음성.wav",
+                             "menus": "음식점이 없습니다."}, safe=False)
+
     # data 바탕으로 db 탐색
+    data = service.menu_tts(menu_text)
 
     return JsonResponse({"voices": data,
                          "menus": menu_text}, safe=False)
