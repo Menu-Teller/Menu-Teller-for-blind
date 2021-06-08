@@ -113,7 +113,7 @@ def menu_tts(menu_data):
     voice_data = []
 
     for shop in menu_data:
-        data = {"title": kakao_tts(shop.get("title"))}
+        data = {"title": kakao_tts(shop.get("title")+"가게에 ")}
 
         for i in range(1, 4):
             menu_text = shop.get("menu" + str(i))
