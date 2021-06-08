@@ -25,7 +25,8 @@ menulist를 출력할 때는 "menus" 데이터를 받음.
 * Menu TTS 에서 Chrome driver 오류 발생 시 대처
 1. [chromedriver version update](https://ddolcat.tistory.com/846)
 2. [DevToolsActivePort file doesn't exist](https://gmyankee.tistory.com/240)  
-이 service.py에 코드 추가 `options.add_argument("--remote-debugging-port=9222")`
+이 service.py에 코드 추가  
+`options.add_argument("--remote-debugging-port=9222")`
 
 * Flutter 오류 발생 시 대처
 1. [recompling 시 .gradle 삭제](https://stackoverflow.com/questions/59893018/flutter-execution-failed-for-task-appcompiledebugkotlin)
@@ -38,7 +39,7 @@ menulist를 출력할 때는 "menus" 데이터를 받음.
 
 * MenuTTS service.py 의 menu_tts에서 title 다음과 같이 바꿈
 `data = {"title": kakao_tts(shop.get("title")+"가게에 ")}`  
-**가게에 ** 가 들어있지 않았음.
+**가게에** 가 들어있지 않았음.
 
 * audio player delay 설정을 5초에서 3초정도로 바꿈
 **문제점**  
