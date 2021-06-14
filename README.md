@@ -14,9 +14,10 @@ audio를 출력할 때는 "voices" 데이터를 받고,
 menulist를 출력할 때는 "menus" 데이터를 받음.
 
 **앞으로 해야 할 일**
-* 크롤링이 되지 않은 상태를 처리   
-방법 1. App이 켜지고 크롤링이 다 될 때까지 로딩하는 창을 만듦. (아마 이 방법으로 해야 할 듯)
-방법 2. Null 값이 들어갔을 때 오류를 출력하는 log를 출력하도록 만듦.  
+* loading 하는 창에 오디오 넣기
+* tutorial 창에 오디오 넣기
+* List View 꾸미기
+* 버튼마다 오디오 나오게 하기 (그리고 비동기식 처리 중지하는 법 조사)
 
 * UI 바꾸기  
 * TTS 가 제대로 작동하면, 바로 소리 test 들어가기 _해결_
@@ -37,6 +38,15 @@ menulist를 출력할 때는 "menus" 데이터를 받음.
 또한 chromedriver의 버전이 각 컴퓨터 마다 다름  
 어차피 Linux에서 돌릴 꺼니까 상관 없을 듯
 
+**0615 수정**
+* UI 수정
+1. 페이지 1 (init Page)
+2. 페이지 2 (Tutorial Page)
+3. 페이지 3 (Button Page)
+4. 페이지 4 (Menu List)
+* 페이지 1에서 tab을 두번 치면 바로 페이지 3으로 넘어감. 한번 치면 페이지 2로 넘어감
+* 로딩 창을 만듦.
+
 * MenuTTS service.py 의 menu_tts에서 title 다음과 같이 바꿈
 `data = {"title": kakao_tts(shop.get("title")+"가게에 ")}`  
 **가게에** 가 들어있지 않았음.
@@ -50,5 +60,5 @@ delay 조절하기
 
 [참고할 flutter 앱의 android 배포 링크](https://here4you.tistory.com/198)
 
-**일시적 데모**
+**일시적 데모**  
 ![ezgif com-gif-maker](https://user-images.githubusercontent.com/51294226/121154899-4b538300-c882-11eb-9355-caa98e0b2532.gif)
