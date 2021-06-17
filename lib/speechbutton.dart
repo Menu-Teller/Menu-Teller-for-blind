@@ -51,24 +51,35 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              width: 350,
-              height: 100,
-              child: RaisedButton(
-                child: Text("Update Location", style: TextStyle(fontSize: 22, color: Colors.white)),
-                onPressed: (){
-                  _showDialog();
-                  getCurrentLocation();
-                  Future.delayed(Duration(milliseconds: 5000), (){
-                    getReq();
-                  });
-                },
-                color: Colors.black,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)
+              Material(
+                child: InkWell(
+                  child: Container(
+                    width: 350,
+                    height: 130,
+                    child: Center(
+                      child: Text("Update Location",
+                          style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 30,
+                              color: Colors.white
+                            )),
+                    ),
+                    decoration: new BoxDecoration(
+                        color: Colors.black,
+                        border: Border.all(width: 1),
+                        borderRadius: const BorderRadius.all(const Radius.circular(40))
+                    ),
+                  ),
+                  onTap: (){
+                    _showDialog();
+                    getCurrentLocation();
+                    Future.delayed(Duration(milliseconds: 5000), (){
+                      getReq();
+                    });
+                  },
                 ),
               ),
-            ),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -77,10 +88,10 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 1',style: TextStyle(fontSize: 25),),
                     onPressed: (){
                       //server.getReq();
-                      changeText();
+                      getAudio();
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -93,10 +104,11 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 2',style: TextStyle(fontSize: 25),),
                     onPressed: (){
                       //server.getReq();
-                      changeText();
+                      //changeText("2");
+                      getAudio();
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -114,10 +126,11 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 3',style: TextStyle(fontSize: 25),),
                     onPressed: (){
                       //server.getReq();
-                      changeText();
+                      //changeText("3");
+                      getAudio();
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -130,10 +143,11 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 4',style: TextStyle(fontSize: 25),),
                     onPressed: (){
                       //server.getReq();
-                      changeText();
+                      //changeText("4");
+                      getAudio();
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -148,10 +162,10 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
       ),
     );
   }
-  void changeText(){
+  void changeText(var num){
     setState(() {
       if(_buttonState=='Stop'){
-        _buttonState='Start Speech';
+        _buttonState='Restaurant '+ num;
         _color=Colors.white;
       }
 
