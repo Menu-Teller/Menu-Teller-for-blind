@@ -1,5 +1,4 @@
 import requests
-import crawlTTS.dao as dao
 from mutagen.mp3 import MP3
 
 """import soundfile
@@ -16,49 +15,6 @@ def get_duration(audio_path):
     duration = audio.info.length
 
     return round(duration)
-
-
-def shopVoice(shop):
-    # save shop data
-    shop_title = shop.get("title") + "가게에 "
-    shop_path, shop_duration = kakao_tts(shop_title, "static/wav/shop/")
-    dao.addShop(shop_title, shop_path, shop_duration)
-
-    return {"title": {"audio_path": shop_path, "duration": shop_duration}}
-
-
-def menuVoice(shop, i):
-    menu_text = shop.get("menu" + str(i))
-
-    if dao.isExistMenu(menu_text):
-        menu_obj = dao.getMenu(menu_text)
-
-        return menu_obj.file_url, menu_obj.duration
-
-    else:
-        path, duration = kakao_tts(menu_text, "static/wav/menu/")
-        dao.addMenu(menu_text, path, duration)
-
-        return path, duration
-
-
-def makeMenuVoice(menu_data):
-    # isExistMenu로 먼저 탐색, 없으면 addMenu + tts 구동
-    # 있으면 해당 db 내용 반환
-    voice_data = []
-
-    for shop in menu_data:
-        data = shopVoice(shop)
-
-        # make menu voices
-        for i in range(1, 4):
-            path, duration = menuVoice(shop, i)
-            data["menu" + str(i)] = {"audio_path": path,
-                                     "duration": duration}
-
-        voice_data.append(data)
-
-    return voice_data
 
 
 def kakao_tts(text, path):
