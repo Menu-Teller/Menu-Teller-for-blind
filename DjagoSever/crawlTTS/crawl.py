@@ -65,5 +65,4 @@ def crawlMenu(market_list):
         except:
             continue
 
-    print(data)
     return data

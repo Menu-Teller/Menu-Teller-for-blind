@@ -19,7 +19,7 @@ def addMenu(text):
 
 
 def updateMenu(text, path, duration):
-    instance = getMenu(text)
+    instance = getMenu(text)[0]
     instance.file_url = path
     instance.duration = duration
     instance.save()
@@ -48,5 +48,7 @@ def addShop(text, path, duration, category, menus, distance):
         else:
             instance.menus.add(addMenu(menu))
     instance.save()
+
+    return instance.id
 
 

@@ -20,19 +20,18 @@ def get_duration(audio_path):
 
 def shopVoice(shop, menu_list):
     # save shop data
-    shop_title = shop.get("title") + "  " + shop.get("category") + "가게에 "  # 카테고리까지 한번에 합성.
+    shop_title = shop.get("title") + "  " + shop.get("category") + "가게"  # 카테고리까지 한번에 합성.
     shop_path, shop_duration = kakao_tts(shop_title, "static/wav/shop/")
 
-    dao.addShop(shop.get("title"), shop_path, shop_duration, shop.get("category"), menu_list, shop.get("distance"))
-    return {"audio_path": shop_path, "duration": shop_duration}
+    shop_id = dao.addShop(shop.get("title"), shop_path, shop_duration,
+                          shop.get("category"), menu_list, shop.get("distance"))
+    return {"audio_path": shop_path, "duration": shop_duration, "id": shop_id}
 
 
-def menuVoice(menu):
-    menu_obj = dao.getMenu(menu)
-
+def menuVoice(menu_obj):
     if menu_obj.file_url is None:
-        path, duration = kakao_tts(menu, "static/wav/menu/")
-        dao.updateMenu(menu, path, duration)
+        path, duration = kakao_tts(menu_obj.title, "static/wav/menu/")
+        dao.updateMenu(menu_obj.title, path, duration)
     else:
         return menu_obj.file_url, menu_obj.duration
 
@@ -46,9 +45,9 @@ def makeOverallVoice(menu_data):
         shop_obj = dao.getShopByTitle(shop.get("title"))
         data = {}
         if shop_obj.exists():
-            data["title"] = {"audio_path": shop_obj.file_url, "duration": shop_obj.duration}
+            data["shop"] = {"id": shop_obj[0].id, "audio_path": shop_obj[0].file_url, "duration": shop_obj[0].duration}
         else:
-            data["title"] = shopVoice(shop, [shop.get("menu1"), shop.get("menu2"), shop.get("menu3")])
+            data["shop"] = shopVoice(shop, [shop.get("menu1"), shop.get("menu2"), shop.get("menu3")])
 
         overall_voice.append(data)
 
@@ -63,10 +62,11 @@ def makeDetailVoice(shop_id):
     if not shop_obj.exists():
         return detail_data
 
-    detail_data["title"] = {"audio_path": shop_obj.file_url, "duration": shop_obj.duration}
-    for menu in shop_obj.menus:
-        path, duration = menuVoice(menu)
+    detail_data["title"] = {"audio_path": shop_obj[0].file_url, "duration": shop_obj[0].duration}
+    for menu_obj in shop_obj[0].menus.all():
+        path, duration = menuVoice(menu_obj)
         detail_data["menu" + str(idx)] = {"audio_path": path, "duration": duration}
+        idx += 1
 
     #detail_data["distance"] = {"audio_path"}
 
