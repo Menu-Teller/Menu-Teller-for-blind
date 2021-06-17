@@ -2,15 +2,6 @@ from crawlTTS.models import Menu, Shop, Distance
 from django.utils import timezone
 
 
-def isExistMenu(text):
-    menu_obj = Menu.objects.filter(title=text)
-
-    if menu_obj.exists():
-        return True
-
-    return False
-
-
 def addMenu(text):
     instance = Menu.objects.create(title=text, created_at=timezone.now())
     instance.save()

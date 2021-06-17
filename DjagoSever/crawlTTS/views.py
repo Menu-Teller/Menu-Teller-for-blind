@@ -1,6 +1,6 @@
 import json
 from django.http import JsonResponse
-from crawlTTS import tts, crawl
+from crawlTTS import crawl, voice
 
 
 def menu_tts(request):
@@ -20,7 +20,7 @@ def menu_tts(request):
                              "menus": "음식점이 없습니다."}, safe=False)
 
     # data 바탕으로 db 탐색
-    data = tts.makeOverallVoice(menu_text)
+    data = voice.makeOverallVoice(menu_text)
 
     return JsonResponse({"voices": data,
                          "menus": menu_text}, safe=False)
@@ -30,7 +30,7 @@ def get_detail_info(request):
     if request.method == 'GET':
         shop_id = request.GET.get('shop_id')
 
-    data = tts.makeDetailVoice(shop_id)
+    data = voice.makeDetailVoice(shop_id)
 
     if not data:
         return JsonResponse({"voices": "static/wav/scripts/예외음성.wav",
