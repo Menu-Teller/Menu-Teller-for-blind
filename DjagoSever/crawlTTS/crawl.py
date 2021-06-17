@@ -7,7 +7,7 @@ def mapApi(shop_type, x, y, radius):
     shop_types = ["FD6", "CE7"]  # 0 - food, 1 - cafe
 
     url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=" + shop_types[int(shop_type)] \
-          + "&radius=" + radius + "&y=" + y + "&x=" + x
+          + "&radius=" + radius + "&y=" + y + "&x=" + x + "&sort=distance"
     result = requests.get(urlparse(url).geturl(),
                           headers={"Authorization": "KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f"})
 
@@ -47,21 +47,23 @@ def crawlMenu(market_list):
             menu_list = driver.find_element_by_class_name("list_menu")
             menu_list = menu_list.find_elements_by_class_name("loss_word")
 
-            text = {"title": market.get("place_name")}
+            text = {"title": market.get("place_name"), "distance": market.get("distance"),
+                    "category": market.get("category_name").split('>')[1].strip()}
             for i in menu_list:
                 text["menu" + str(menu_idx)] = i.text
                 menu_idx += 1
 
                 if menu_idx > 3:
-                    break  # 일단 메뉴 3개만
+                    break  # 메뉴 3개
 
             data.append(text)
             market_idx += 1
 
-            if market_idx > 5:
-                break  # 일단 음식점 5개만
+            if market_idx > 4:
+                break  # 음식점 4개
 
         except:
             continue
 
+    print(data)
     return data
