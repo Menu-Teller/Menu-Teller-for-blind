@@ -21,4 +21,5 @@ from crawlTTS import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('menuTTS/', views.menu_tts),
+    path('detail/', views.get_detail_info)
 ]
