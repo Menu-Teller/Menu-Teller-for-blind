@@ -1,13 +1,9 @@
 import requests
 from mutagen.mp3 import MP3
 
-"""import soundfile
-import time
-import torch
+"""import torch
 from espnet_model_zoo.downloader import ModelDownloader
-from espnet2.bin.tts_inference import Text2Speech
-from parallel_wavegan.utils import download_pretrained_model
-from parallel_wavegan.utils import load_model """
+from espnet2.bin.tts_inference import Text2Speech"""
 
 
 def get_duration(audio_path):
@@ -40,10 +36,10 @@ def kakao_tts(text, path):
 
 
 # espnet tts
-"""def espnet_tts(text):
+"""def espnet_tts(text, path):
     d = ModelDownloader()
     text2speech = Text2Speech(
-        **d.download_and_unpack("/content/tts_tacotron-old.zip"),
+        **d.download_and_unpack("static/tts/normal.zip"),
         device="cuda",
         # Only for Tacotron 2
         threshold=0.5,
@@ -56,12 +52,11 @@ def kakao_tts(text, path):
         speed_control_alpha=1.0, )
 
     with torch.no_grad():
-        start = time.time()
         sound, c, *_ = text2speech(text)
 
-    path = "static/wav/"
+    audio_path = path + text + ".mp3"
+    with open(audio_path, "wb+") as mp3:
+        mp3.write(sound)
+        duration = get_duration(audio_path)
 
-    with open(path + text + ".wav", "wb+") as wav:
-        wav.write(sound)
-
-    return path + text + ".wav" """
+    return audio_path, duration  # 파일째로 저장하지 않고 경로로 넘겨주기"""
