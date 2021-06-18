@@ -10,22 +10,22 @@ class SpeechMenuButton extends StatefulWidget {
 }
 
 class _SpeechMenuButton extends State<SpeechMenuButton> {
-  String _buttonState='Start Speech';
   var _color=Colors.white;
   Map<String, dynamic> data;
   AudioPlayer audioPlayer = AudioPlayer();
   List<dynamic> pathlist1 = List.filled(0,0,growable:true);
-  List<dynamic> pathlist2 = List.filled(0,0,growable:true);
+
+  int _duration = 0;
 
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      _showDialog();
+      _showDialog(5);
       AudioPlayer.logEnabled = false;
       getCurrentLocation();
       Future.delayed(Duration(milliseconds: 5000), () {
-        getReq();
+        postReq();
       });
     });
   }
@@ -51,24 +51,38 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              width: 350,
-              height: 100,
-              child: RaisedButton(
-                child: Text("Update Location", style: TextStyle(fontSize: 22, color: Colors.white)),
-                onPressed: (){
-                  _showDialog();
-                  getCurrentLocation();
-                  Future.delayed(Duration(milliseconds: 5000), (){
-                    getReq();
-                  });
-                },
-                color: Colors.black,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30)
+              Material(
+                child: InkWell(
+                  child: Container(
+                    width: 350,
+                    height: 130,
+                    child: Center(
+                      child: Text("Update Location",
+                          style: TextStyle(
+                              fontFamily: 'Roboto',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 30,
+                              color: Colors.white
+                            )),
+                    ),
+                    decoration: new BoxDecoration(
+                        color: Colors.black,
+                        border: Border.all(width: 1),
+                        borderRadius: const BorderRadius.all(const Radius.circular(40))
+                    ),
+                  ),
+                  onTap: (){
+                    _showDialog(10);
+                    getCurrentLocation();
+                      Future.delayed(Duration(milliseconds: 5000), (){
+                        postReq();
+                      });
+                    Future.delayed(Duration(milliseconds: 18000), (){
+                      getAudioShop();
+                    });
+                  },
                 ),
               ),
-            ),
             SizedBox(height: 30),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -77,10 +91,9 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 1',style: TextStyle(fontSize: 25),),
                     onPressed: (){
-                      //server.getReq();
-                      changeText();
+                      getAudio("1");
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -93,10 +106,10 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 2',style: TextStyle(fontSize: 25),),
                     onPressed: (){
-                      //server.getReq();
-                      changeText();
+                      getAudio("2");
+                      //changeText("2");
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -114,10 +127,10 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 3',style: TextStyle(fontSize: 25),),
                     onPressed: (){
-                      //server.getReq();
-                      changeText();
+                      getAudio("3");
+                      //changeText("3");
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -130,10 +143,10 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
                   width: 175,
                   height: 200,
                   child: RaisedButton(
-                    child: Text('$_buttonState',style: TextStyle(fontSize: 30),),
+                    child: Text('Restaurant 4',style: TextStyle(fontSize: 25),),
                     onPressed: (){
-                      //server.getReq();
-                      changeText();
+                      getAudio("4");
+                      //changeText("4");
                     },
                     color: _color,
                     shape: RoundedRectangleBorder(
@@ -148,52 +161,65 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
       ),
     );
   }
-  void changeText(){
-    setState(() {
-      if(_buttonState=='Stop'){
-        _buttonState='Start Speech';
-        _color=Colors.white;
-      }
 
-      else{
-        getAudio();
-        _buttonState='Stop';
-        _color=Colors.white24;
-      }
-    });
-  }
-
-  void getReq() async{
+  void postReq() async{
     json = await server.postReq(data);
     print(json["voices"]);
     print(json["menus"]);
   }
 
-  void getAudio() async{
+  void getAudioShop() async{
     var url = _API_AUDIO_PREFIX;
-
+    _duration = 0;
+    print("if it is success?");
+    print(json);
+    pathlist1 = List.filled(0,0,growable:true);
     for(int i=0;i<json["voices"].length;i++){
-      getDelay("title", i, 0);
-      getDelay("menu1", i, 1);
-      getDelay("menu2", i, 2);
-      getDelay("menu3", i, 3);
-      getDelay("end", i, 4);
-      pathlist2.add(pathlist1);
-      pathlist1 = List.filled(0,0,growable:true);
+      getDelay("audio_path", i);
     }
   }
 
-  void getDelay(var name, int i, int name_i) async{
-    var path = _API_AUDIO_PREFIX + json["voices"][i][name];
-    int delaySec = 3000;
-    pathlist1.add(path);
-    int duration = name_i * delaySec + delaySec * 5 * i;
-    print(json["voices"][i][name]);
-    print(duration);
-    Future.delayed(Duration(milliseconds: duration), (){
+  void getAudio(var i) async{
+    json = await server.getReq(i);
+    print(json);
+    var url = _API_AUDIO_PREFIX;
+    Future.delayed(Duration(milliseconds: 1000), (){
+      _duration = 0;
+      print("if it is success?");
+      print(json);
+      getDelayDetail("title");
+      getDelayDetail("menu1");
+      getDelayDetail("menu2");
+      getDelayDetail("menu3");
+      getDelayDetail("distance");
+    });
+  }
+
+  void getDelayDetail(var name) async{
+    var path = _API_AUDIO_PREFIX + json[name]["audio_path"];
+    if (name == "title"){
+      _duration = 0;
+    } else {
+      _duration += json[name]["duration"] * 1000 + 1000;
+    }
+    print(_duration);
+    Future.delayed(Duration(milliseconds: _duration), (){
       print(path);
-      playAudio(pathlist2[i][name_i]);
-      print(pathlist2[i][name_i]);
+      playAudio(path);
+      print(path);
+    });
+  }
+
+  void getDelay(var name, int i) async{
+    var path = _API_AUDIO_PREFIX + json["voices"][i]["shop"][name];
+    pathlist1.add(path);
+    _duration += json["voices"][i]["shop"]["duration"] * 1000 + 1000;
+    print(json["voices"][i]["shop"][name]);
+    print(_duration);
+    Future.delayed(Duration(milliseconds: _duration), (){
+      print(path);
+      playAudio(pathlist1[i]);
+      print(pathlist1[i]);
     });
   }
 
@@ -207,12 +233,12 @@ class _SpeechMenuButton extends State<SpeechMenuButton> {
     //duration = await audioPlayer.getDuration();
   }
 
-  void _showDialog() {
+  void _showDialog(int seconds) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
 
-        Future.delayed(Duration(seconds: 5), () {
+        Future.delayed(Duration(seconds: seconds), () {
           Navigator.pop(context);
         });
 

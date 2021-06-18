@@ -36,18 +36,31 @@ class _MainPageState extends State<MainPage> {
                     Tab(icon: Icon(Icons.fastfood)),
                   ],
                 ),
-                title: Container(
-                  margin: EdgeInsets.only(top: 20),
-                  child: Text(
-                    "Menu Teller",
-                    style: TextStyle(
-                      fontFamily: 'Roboto',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 30.0,
-                      color: Colors.white,
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(top: 20),
+                      child: SizedBox(
+                          height: 50,
+                          width: 50,
+                          child: Image.asset('assets/images/speech_icon-removebg.png')
+                      ),
                     ),
-                  ),
-                ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                      child: Text(
+                        "Menu Teller",
+                        style: TextStyle(
+                          fontFamily: 'Roboto',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 30.0,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
             ),
           ),
           body: TabBarView(children: [

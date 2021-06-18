@@ -16,9 +16,6 @@ class _MenuListState extends State<MenuList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold (
-      appBar: AppBar(
-        title: Text('주변 식당 List'),
-      ),
       body: _buildSuggestions(),
     );
   }
@@ -31,7 +28,14 @@ class _MenuListState extends State<MenuList> {
           height:50,
           color: Colors.amber[100],
           child: RaisedButton(
-            child: Text('${json["menus"][index]["title"]}'),
+            child: Text(
+              '${json["menus"][index]["title"]}',
+              style: TextStyle(
+                fontFamily: 'NotoSans',
+                fontWeight: FontWeight.w500,
+                fontSize: 20.0,
+            ),
+          ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -53,7 +57,16 @@ class MenuDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menu List'),
+        title: Text(
+            'Menu List',
+            style: TextStyle(
+            fontFamily: 'Roboto',
+            fontWeight: FontWeight.w700,
+            fontSize: 20.0,
+              color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.black,
       ),
       body: _buildSuggestions(),
     );
@@ -65,9 +78,16 @@ class MenuDetail extends StatelessWidget {
       itemBuilder: (BuildContext context, int i) {
         return Container(
           height:50,
-          color: Colors.amber[100],
+          color: Colors.grey[100],
           child: Center(
-            child: Text('${json["menus"][index]["menu${i+1}"]}'),
+            child: Text(
+              '${json["menus"][index]["menu${i+1}"]}',
+              style: TextStyle(
+                fontFamily: 'NotoSans',
+                fontWeight: FontWeight.w500,
+                fontSize: 20.0,
+              ),
+            ),
           ),
         );
       },
