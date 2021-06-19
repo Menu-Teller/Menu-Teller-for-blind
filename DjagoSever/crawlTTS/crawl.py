@@ -32,7 +32,7 @@ def setChromeOptions():
 
 
 def crawlMenu(market_list):
-    driver = webdriver.Chrome(executable_path=r'static/driver/chromedriver',
+    driver = webdriver.Chrome(executable_path=r'static/driver/chromedriver.exe',
                               options=setChromeOptions())  # 본인 크롬 드라이버 위치 입력
     data = []
     market_idx = 1
