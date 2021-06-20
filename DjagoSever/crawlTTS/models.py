@@ -11,7 +11,7 @@ class Menu(models.Model):
 
 
 class Distance(models.Model):
-    distance = models.TextField(max_length=5, default='0')
+    distance = models.TextField(max_length=5, default='')
     created_at = models.DateTimeField(auto_now_add=True, null=True)
     file_url = models.URLField(max_length=200, blank=True, null=True)
     duration = models.PositiveIntegerField(default=3, validators=[MinValueValidator(1), MaxValueValidator(100)])
