@@ -25,7 +25,7 @@ def menuVoice(menu_obj):
 def distanceVoice(dis_obj):
 
     if dis_obj.file_url is None:
-        text = dis_obj.distance + " 미터 이내에 있습니다"
+        text = "음식점이 " + dis_obj.distance + " 미터 이내에 있습니다"
         path, duration = kakao_tts(text, "static/wav/distance/")
         dao.updateDistance(dis_obj.distance, path, duration)
     else:
