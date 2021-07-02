@@ -1,64 +1,69 @@
-# Menu Teller for Blind
+# Menu-Teller ReadMe
 
-### Client
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/appstore.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/appstore.png)
 
-Front App을 구현함.  
-`dio` 라이브러리로 Django Server에 Post request를 보내고  
-Menus 데이터와 tts로 변환된 파일의 path를 받아옴.  
+### 🔊 **Menu-Teller**
 
-파일의 path를 `audioplayer` 라이브러리로 출력. 이때 각 audio 사이에 delay를 줌.
+지도 앱을 보고 사용하는데 상대적으로 어려움이 있는 시각 장애인들을 위한, 주변 음식점 정보 음성 제공 서비스. 
 
-Django Server에 request를 보낼 때, `Google Map Location`으로 위도 및 경도를 보냄.
+### ➰ **프로젝트 흐름**
 
-audio를 출력할 때는 "voices" 데이터를 받고,  
-menulist를 출력할 때는 "menus" 데이터를 받음.
+앱을 실행 후 버튼을 누르면 사용자의 위치 정보가 서버로 넘어옵니다.
+서버는 위치 정보를 받은 후 kakao map api를 사용하여 주변 음식점 정보를 얻고, 이를 이용해 크롤링하여 각 음식점의 세부 정보(메뉴, 위치 등)을 얻습니다.
+이러한 세부 정보를 음성 합성기를 이용하여 상황에 따라 알맞게 합성합니다.
+합성한 음성을 앱으로 보내 사용자가 들을 수 있도록 합니다.
+시각 장애인들을 위해 앱의 UI는 최대한 간단하게 구현합니다.
 
-**앞으로 해야 할 일**
-* loading 하는 창에 오디오 넣기
-* tutorial 창에 오디오 넣기
-* List View 꾸미기
-* 버튼마다 오디오 나오게 하기 (그리고 비동기식 처리 중지하는 법 조사)
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf.png)
 
-* UI 바꾸기  
-* TTS 가 제대로 작동하면, 바로 소리 test 들어가기 _해결_
+### 📅 팀원 소개 및 일정
 
-**0608 수정**
-* Menu TTS 에서 Chrome driver 오류 발생 시 대처
-1. [chromedriver version update](https://ddolcat.tistory.com/846)
-2. [DevToolsActivePort file doesn't exist](https://gmyankee.tistory.com/240)  
-이 service.py에 코드 추가  
-`options.add_argument("--remote-debugging-port=9222")`
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf%201.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf%201.png)
 
-* Flutter 오류 발생 시 대처
-1. [recompling 시 .gradle 삭제](https://stackoverflow.com/questions/59893018/flutter-execution-failed-for-task-appcompiledebugkotlin)
-2. [flutter version update](https://github.com/flutter/flutter/issues/83834)
+### 🛠 **기술 스택**
 
-* chromedriver 경로 설정
-/status/driver이었는데, static이 ignore 처리되어 있어서 들어가지 않음.  
-또한 chromedriver의 버전이 각 컴퓨터 마다 다름  
-어차피 Linux에서 돌릴 꺼니까 상관 없을 듯
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf%202.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf%202.png)
 
-**0615 수정**
-* UI 수정
-1. 페이지 1 (init Page)
-2. 페이지 2 (Tutorial Page)
-3. 페이지 3 (Button Page)
-4. 페이지 4 (Menu List)
-* 페이지 1에서 tab을 두번 치면 바로 페이지 3으로 넘어감. 한번 치면 페이지 2로 넘어감
-* 로딩 창을 만듦.
+### 📌 핵심 기술
 
-* MenuTTS service.py 의 menu_tts에서 title 다음과 같이 바꿈
-`data = {"title": kakao_tts(shop.get("title")+"가게에 ")}`  
-**가게에** 가 들어있지 않았음.
+**TTS**
 
-* audio player delay 설정을 5초에서 3초정도로 바꿈
-**문제점**  
-빠른 delay다 보니 중간에 오디오가 끝까지 못 말하고 끊기기도 함.  
-flutter에 오디오 시간을 받아오는 모듈 함수가 없음😭  
-가끔씩 location 받아오기 전에 http response를 보내서 에러가 발생  
-delay 조절하기  
+저희만의 음성 합성기를 새롭게 만듭니다. 기존 음성 합성기는 외래어에 관하여 약간의 부자연스러움이 있었고, 음식 메뉴는 외래어가 매우 많기에 음식 메뉴에 초점을 맞춘 음성 합성기를 새로 개발합니다.
 
-[참고할 flutter 앱의 android 배포 링크](https://here4you.tistory.com/198)
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled.png)
 
-**일시적 데모**  
-![ezgif com-gif-maker](https://user-images.githubusercontent.com/51294226/121154899-4b538300-c882-11eb-9355-caa98e0b2532.gif)
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%201.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%201.png)
+
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%202.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%202.png)
+
+teacher 모델에서 얻은 단순화 데이터 대신, ground-truth recordings으로 모델을 직접 훈련하며 pitch, energy 등의 더 다양한 정보를 학습하여 합성 속도 및 음성 품질을 높인 fastspeech2 모델 선정.
+
+메뉴 문장과 일반 문장으로 이루어진 특수한 문장 코퍼스 구성.
+이를 phoneme으로 변환 후 kaldi 형식 dir 구성. 이후 espnet 오픈소스를 이용하여 tacotron2 모델로 pre training. 이후 tacotron2의 결과를 활용하여 fastspeech2 모델 학습.
+
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%203.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%203.png)
+
+3780 문장 훈련
+
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%204.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%204.png)
+
+8000 문장 훈련
+
+현재 녹음이 3780개만 완료되어 해당 음성으로만 학습한 합성기는 왼쪽 결과처럼 loss 값이 크고 줄어들지 않는 문제 발생. 이를 확실히 하기 위해, 학습 문장이 많은 일반 문장 코퍼스([https://www.kaggle.com/bryanpark/korean-single-speaker-speech-dataset](https://www.kaggle.com/bryanpark/korean-single-speaker-speech-dataset)) 를 학습한 결과 loss가 크게 줄어들었으며 음성 합성 또한 잘되는 것을 확인.
+⇒ 그러므로 구성한 메뉴 + 일반 문장인 저희 코퍼스의 녹음이 완료되어 전부 학습할 수 있다면 좋은 음성 품질이 나올 것으로 예상.
+
+**Server**
+
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%205.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%205.png)
+
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%206.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf/Untitled%206.png)
+
+서버 구조는 다음과 같으며, 데이터베이스에 이미 합성한 정보들을 저장하여 중복 합성을 피하도록 한다. 
+[자세한 server 정보](https://github.com/Menu-Teller/Menu-Teller-for-blind/tree/master/DjagoSever)
+
+**Front**
+
+앱은 flutter를 이용해 구현하며 비동기식 처리를 진행. 
+delay를 음성 파일 duration에 맞춰 걸어주어 음성 중복을 피하고 메뉴 정보를 받아 리스트 형태로 출력.
+
+![Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf%203.png](Menu-Teller%20ReadMe%20c3e73a6a99fc435e9d05b5dd3f33fadf%203.png)
