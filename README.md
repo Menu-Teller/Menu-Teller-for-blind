@@ -28,11 +28,10 @@
 
 저희만의 음성 합성기를 새롭게 만듭니다. 기존 음성 합성기는 외래어에 관하여 약간의 부자연스러움이 있었고, 음식 메뉴는 외래어가 매우 많기에 음식 메뉴에 초점을 맞춘 음성 합성기를 새로 개발합니다.
 
-<img src="https://user-images.githubusercontent.com/37532204/124210807-09d39200-db27-11eb-8103-5045c12e9181.png" width="150" height="300"/>
+<img src="https://user-images.githubusercontent.com/37532204/124210807-09d39200-db27-11eb-8103-5045c12e9181.png" width="150" height="300"/>   
+teacher 모델에서 얻은 단순화 데이터 대신, ground-truth recordings으로 모델을 직접 훈련하며 pitch, energy 등의 더 다양한 정보를 학습하여 합성 속도 및 음성 품질을 높인 fastspeech2 모델 선정.
 
 <img src="https://user-images.githubusercontent.com/37532204/124210822-10620980-db27-11eb-9e1c-3e971d8cf8c0.png" width="350" height="300"/><img src="https://user-images.githubusercontent.com/37532204/124210831-135cfa00-db27-11eb-8863-2b3f8ee14d4b.png" width="350" height="300"/>
-
-teacher 모델에서 얻은 단순화 데이터 대신, ground-truth recordings으로 모델을 직접 훈련하며 pitch, energy 등의 더 다양한 정보를 학습하여 합성 속도 및 음성 품질을 높인 fastspeech2 모델 선정.
 
 메뉴 문장과 일반 문장으로 이루어진 특수한 문장 코퍼스 구성.
 이를 phoneme으로 변환 후 kaldi 형식 dir 구성. 이후 espnet 오픈소스를 이용하여 tacotron2 모델로 pre training. 이후 tacotron2의 결과를 활용하여 fastspeech2 모델 학습.
