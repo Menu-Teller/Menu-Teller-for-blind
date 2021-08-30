@@ -9,7 +9,7 @@ def mapApi(shop_type, x, y, radius):
     url = "https://dapi.kakao.com/v2/local/search/category.json?category_group_code=" + shop_types[int(shop_type)] \
           + "&radius=" + radius + "&y=" + y + "&x=" + x + "&sort=distance"
     result = requests.get(urlparse(url).geturl(),
-                          headers={"Authorization": "KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f"})
+                          headers={"Authorization": "KakaoAK enter your api key"})
 
     json_obj = result.json()
     market_list = json_obj.get("documents")
