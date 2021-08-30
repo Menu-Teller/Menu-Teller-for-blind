@@ -20,7 +20,7 @@ def kakao_tts(text, path):
         'Host': 'kakaoi-newtone-openapi.kakao.com',
         'Content-Type': 'application/xml',
         'X-DSS-Service': 'DICTATION',
-        'Authorization': f'KakaoAK 5e9a09d93f00b8b5c88d5e6cce2bd97f',
+        'Authorization': f'KakaoAK enter your api key',
     }
 
     data = "<speak>" + text + "</speak>"
