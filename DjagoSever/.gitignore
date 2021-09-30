@@ -4,6 +4,7 @@
 
 venv/
 .idea/
+*/secrets.json
 
 ### Django ###
 *.log
